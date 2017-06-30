@@ -1,6 +1,11 @@
 # base-image for python on any machine using a template variable,
 # see more about dockerfile templates here:http://docs.resin.io/pages/deployment/docker-templates
-FROM resin/%%RESIN_MACHINE_NAME%%-python
+FROM resin/%%RESIN_MACHINE_NAME%%-python:slim
+
+# Install a couple of dependencies
+RUN apt-get update && apt-get install -yq \
+  gcc \
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # switch on systemd init system in container
 ENV INITSYSTEM on
@@ -10,7 +15,7 @@ COPY ./requirements.txt /requirements.txt
 RUN pip install -r /requirements.txt
 
 # Set our working directory
-COPY . /usr/src/app
+COPY ./src /usr/src/app
 WORKDIR /usr/src/app
 
 # main.py will run when container starts up on the device
